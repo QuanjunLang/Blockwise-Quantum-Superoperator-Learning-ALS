@@ -1,0 +1,25 @@
+function sysInfo = update_sys(sysInfo)
+
+sysInfo.L       = sysInfo.steps+1;
+sysInfo.T       = sysInfo.steps*sysInfo.dt;
+sysInfo.tgrid   = 0:sysInfo.dt:sysInfo.steps*sysInfo.dt;
+sysInfo.channel_dt      = sysInfo.channel_dt_rate * sysInfo.dt;
+
+switch sysInfo.observable_option
+    case 'Full_state'
+        sysInfo.N_o = sysInfo.n^2;
+    case 'Multiple_random_observables'
+        a = 1;
+    case 'Single_random_observable'
+        sysInfo.N_o = 1;
+    case 'First_row_col_diag'
+        sysInfo.N_o = 3*sysInfo.n - 2;
+    case {'First_row_col', 'Channel_first_row_col'}
+        sysInfo.N_o = 2*sysInfo.n - 1;
+    case {'Channel_dm_first_row_col', 'Lindbladian_dm_first_row_col_finite_difference'}
+        sysInfo.N_o = sysInfo.M;
+end
+
+
+
+end
