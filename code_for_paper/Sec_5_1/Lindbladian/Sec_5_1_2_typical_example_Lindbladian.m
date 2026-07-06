@@ -6,9 +6,7 @@ addPaths
 
 % copyright - Quanjun Lang, 2024
 %% system settings
-pe = pyenv(Version='/opt/anaconda3/bin/python', ExecutionMode = 'OutOfProcess');
-terminate(pe)
-
+pe = setup_python();
 sysInfo.n               = 8;           %
 sysInfo.M               = 50;          % number of independent trajectories
 sysInfo.p               = 1;            % number of jumpoperators

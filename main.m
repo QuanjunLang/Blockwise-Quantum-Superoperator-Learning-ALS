@@ -6,15 +6,7 @@ addPaths
 
 % copyright - Quanjun Lang, 2024
 %% system settings
-% pe = pyenv(Version='/opt/anaconda3/bin/python', ExecutionMode = 'OutOfProcess');
-
-
-pe = pyenv( ...
-    Version='/opt/anaconda3/envs/blockwise-quantum-superoperator-learning-als/bin/python', ...
-    ExecutionMode='OutOfProcess');
-
-
-terminate(pe)
+pe = setup_python();
 
 sysInfo.n               = 10;           %
 sysInfo.M               = 80;          % number of independent trajectories

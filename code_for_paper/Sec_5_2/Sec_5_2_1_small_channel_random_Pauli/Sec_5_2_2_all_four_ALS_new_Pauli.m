@@ -14,8 +14,7 @@ end
 
 % copyright - Quanjun Lang, 2024
 %% system settings
-pe = pyenv(Version='/opt/anaconda3/bin/python', ExecutionMode = 'OutOfProcess');
-terminate(pe)
+pe = setup_python();
 
 sysInfo.n               = 4;           %
 sysInfo.p               = 2;            % number of jumpoperators

@@ -1,1 +1,15 @@
+.DS_Store
+**/.DS_Store
+__pycache__/
+*.py[cod]
+*.asv
+*.m~
+.vscode/
+
+# Large MATLAB outputs are local or archived on Zenodo.
 *.mat
+
+# Allow compact, figure-ready MATLAB files to be versioned.
+!data/
+!data/processed/
+!data/processed/*.mat
