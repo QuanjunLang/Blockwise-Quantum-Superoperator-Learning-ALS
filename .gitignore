@@ -6,10 +6,8 @@ __pycache__/
 *.m~
 .vscode/
 
-# Large MATLAB outputs are local or archived on Zenodo.
+# Ignore MATLAB data by default to prevent accidental workspace dumps.
 *.mat
 
-# Allow compact, figure-ready MATLAB files to be versioned.
-!data/
-!data/processed/
-!data/processed/*.mat
+# Track the compact data distributed with the manuscript experiments.
+!code_for_paper/**/*.mat

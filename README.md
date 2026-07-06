@@ -34,7 +34,7 @@ addPaths.m         Adds repository code to the MATLAB path
 main.m             Small channel-learning example
 environment.yml    Reproducible Python environment
 setup_python.m     Portable MATLAB-to-Python configuration
-data/              Data documentation and compact figure data
+cvx/               Bundled CVX distribution for diamond-norm calculations
 ```
 
 ## Requirements
@@ -43,12 +43,14 @@ data/              Data documentation and compact figure data
 
 - MATLAB R2023b or newer, because the supplied environment uses Python 3.11.
 - Parallel Computing Toolbox is required only for routines using `parfor`.
-- CVX is optional and is required only when diamond-norm calculations are
-  enabled. The examples disable them by default with `compute_dnorm = 0`.
+- CVX is required for diamond-norm calculations. A CVX distribution is
+  included in `cvx/`. In particular, the Section 4.1 channel experiment
+  sets `dnorm_flag = 1` and therefore requires CVX. Scripts using
+  `compute_dnorm = 0` do not require CVX.
 
 The repository includes copies of Tensor Toolbox utilities, randomized SVD,
-`superkron`, and MATLAB diamond-norm helper code. Their original notices and
-licenses remain in the corresponding `util/` directories.
+`superkron`, MATLAB diamond-norm helper code, and CVX. Their original
+notices and licenses remain in the corresponding directories.
 
 ### Python
 
@@ -120,6 +122,32 @@ The displayed executable must belong to
 `blockwise-quantum-superoperator-learning-als`, not the base Conda
 environment.
 
+## CVX setup for diamond norms
+
+CVX is a MATLAB dependency and is not installed by `environment.yml`. The
+CVX distribution used by this project is included in `cvx/`. From the
+repository root, configure it once in MATLAB:
+
+```matlab
+repositoryRoot = pwd;
+cd(fullfile(repositoryRoot, "cvx"))
+cvx_setup
+cvx_version
+which cvx_begin
+cd(repositoryRoot)
+```
+
+`which cvx_begin` must return a file inside this repository's `cvx/`
+directory. The bundled distribution includes the free SeDuMi and SDPT3
+solvers, so a commercial solver is not required for the diamond-norm
+calculations used here. CVX remains subject to the license terms provided
+in `cvx/LICENSE.txt` and `cvx/GPL.txt`.
+
+The diamond-norm implementation is located at
+`util/matlab-diamond-norm-master/src/dnorm.m`. It formulates a semidefinite
+program between `cvx_begin` and `cvx_end`; consequently, having `dnorm.m` in
+the repository does not remove the external CVX requirement.
+
 ## Quick start
 
 Start MATLAB in the repository root and run:
@@ -155,34 +183,86 @@ Do not commit a personal Python path.
 
 ## Reproducing the paper figures
 
-The experiment scripts are grouped by manuscript section:
+The experiment scripts and compact data are grouped by manuscript section.
+The included `.mat` files contain only the arrays needed for the
+corresponding table or figure.
 
-| Output | Primary script |
-|---|---|
-| `Sec_5_2_small_test_rate_channel.pdf` | `code_for_paper/Sec_5_2/Sec_5_2_1_small_channel_random_Pauli/Sec_5_2_2_all_four_ALS_new.m` |
-| `Sec_5_2_small_test_rate_channel_Pauli.pdf` | `code_for_paper/Sec_5_2/Sec_5_2_1_small_channel_random_Pauli/Sec_5_2_2_all_four_ALS_new_Pauli.m` |
-| `Sec_5_2_fast_ALS_rate_all.pdf` and `Sec_5_2_fast_ALS_time_all.pdf` | `code_for_paper/Sec_5_2/Sec_5_2_2_large_channel_Lindbladian/combine_data_draw_figure.m` |
-| `Sec_5_3_error_decay_sub_set_ratio.pdf` | `code_for_paper/Sec_5_3/Sec_5_3_convergence_with_M_noisy.m` and `make_plot.m` |
-| `Sec_5_4_Necessary_data_size_Hilbert_space.pdf` | `code_for_paper/Sec_5_4/Sec_5_4_1/Sec_5_4_efficient_sample_size.m` |
-| `Sec_5_4_Necessary_data_size_rank.pdf` | `code_for_paper/Sec_5_4/Sec_5_4_2/combine_data_draw_figure_computation_time.m` |
+| Result | Plotting or table script | Included data |
+|---|---|---|
+| Section 4.1 channel tables | `code_for_paper/Sec_4_1/Channel/load_data_make_table.m` | `code_for_paper/Sec_4_1/Channel/4_1_Channel_typical_data*.mat` |
+| Section 4.1 Lindbladian tables | `code_for_paper/Sec_4_1/Lindbladian/load_data_make_table.m` | `code_for_paper/Sec_4_1/Lindbladian/4_1_Lindbladian_typical_data*.mat` |
+| `Sec_4_2_small_test_rate_channel.pdf` and `Sec_4_2_small_test_time_channel.pdf` | `code_for_paper/Sec_4_2/combine_data_draw_figure.m` | `code_for_paper/Sec_4_2/Channel_Random_all_error.mat` |
+| `Sec_4_2_small_test_rate_channel_Pauli.pdf` and `Sec_4_2_small_test_time_channel_Pauli.pdf` | `code_for_paper/Sec_4_2/combine_data_draw_figure.m` | `code_for_paper/Sec_4_2/Channel_Random_Pauli_all_error.mat` |
+| `Sec_4_3_error_decay_sub_set_ratio.pdf` | `code_for_paper/Sec_4_3/make_plot.m` | `code_for_paper/Sec_4_3/N_25_M_3000.mat` |
+| `Sec_4_4_Necessary_data_size_Hilbert_space.pdf` | `code_for_paper/Sec_4_4/Sec_4_4_Dim_N_M/load_data_plot_figure.m` | `code_for_paper/Sec_4_4/Sec_4_4_Dim_N_M/N_M_change_p_2_recover_rate.mat` |
+| `Sec_4_4_Necessary_data_size_rank.pdf` | `code_for_paper/Sec_4_4/Sec_4_4_rank_r_M/combine_data_draw_figure.m` | `code_for_paper/Sec_4_4/Sec_4_4_rank_r_M/p_*.mat` |
 
-Two reproduction workflows are planned:
+For fast reproduction, run the plotting or table script using the included
+compact data. For complete reproduction from randomized simulations, run
+the corresponding experiment script first. Full simulation runs can be
+computationally expensive.
 
-1. **Figure reproduction:** load compact processed data from
-   `data/processed/` and run the plotting scripts.
-2. **Complete reproduction:** regenerate the simulation outputs and then run
-   the plotting scripts. This is substantially more computationally
-   expensive.
+### Diamond-norm experiments
 
-## Large data
+Before running an experiment with either
 
-The complete simulation outputs are approximately 12 GB. They are excluded
-from Git and will be deposited on Zenodo as a versioned dataset with a DOI.
-Small processed arrays needed to redraw the figures should remain in
-`data/processed/`.
+```matlab
+dnorm_flag = 1;
+```
 
-See [`data/README.md`](data/README.md) for the proposed archive organization
-and compact-data policy.
+or
+
+```matlab
+"compute_dnorm", 1
+```
+
+verify that CVX is available:
+
+```matlab
+assert(exist("cvx_begin", "file") == 2, ...
+    "CVX is required for diamond-norm calculations. Run cvx_setup first.");
+```
+
+Setting `dnorm_flag = 0` skips the CVX calculation, but scripts that later
+read `outputInfo.error_diamond` must also omit the corresponding
+diamond-norm table column. Therefore, CVX is required to reproduce tables
+or figures that report diamond-norm errors.
+
+## Included data
+
+All compact data required to reproduce the manuscript tables and figures
+are included directly in `code_for_paper/`. The data were reduced by saving
+only the variables used by the plotting and table scripts rather than
+entire MATLAB workspaces.
+
+When generating new results, prefer an explicit variable list:
+
+```matlab
+save("figure_data.mat", "all_M", "recover_rate")
+```
+
+Avoid saving the complete workspace with `save("figure_data.mat")`, because
+intermediate matrices and solver histories can make the file unnecessarily
+large.
+
+## Troubleshooting
+
+### `Unrecognized function or variable 'cvx_begin'`
+
+MATLAB found the bundled `dnorm.m`, but the included CVX distribution has
+not been configured in the current MATLAB installation. From the repository
+root, run:
+
+```matlab
+cd cvx
+cvx_setup
+which cvx_begin
+cd ..
+```
+
+Then restart the experiment. Do not manually add only selected CVX
+subdirectories; the official installer recommends letting `cvx_setup`
+configure the complete MATLAB path.
 
 ## Citation
 
@@ -201,7 +281,7 @@ If this repository is useful in your work, please cite:
 
 ## Data and code availability
 
-The source code and compact processed data required to reproduce the
-manuscript figures will be maintained in this repository. The complete
-simulation outputs will be archived separately on Zenodo because of their
-size. The Zenodo DOI will be added after the dataset is published.
+The source code and compact processed data required to reproduce all
+reported manuscript tables and figures are included in this repository.
+The experiment scripts are also provided to regenerate the compact data
+from randomized simulations.

@@ -1,3 +1,6 @@
+# Python dependencies only.
+# CVX is bundled under cvx/ and must be configured separately in MATLAB for
+# diamond-norm calculations; see the CVX section in README.md.
 name: blockwise-quantum-superoperator-learning-als
 channels:
   - conda-forge
